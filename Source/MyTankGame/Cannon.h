@@ -32,8 +32,6 @@ protected:
 	FTimerHandle ReloadTimerHandle;
 	bool ReadyToFire = true;
 	bool ReadyToSpecialFire = true;
-	bool specialStart = false;
-	int currentSpecial = 0;
 
 
 public:	
@@ -46,7 +44,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void Reload();
-	void ReloadSpecial();
 
 public:	
 	// Called every frame
