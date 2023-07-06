@@ -25,18 +25,28 @@ protected:
 		float FireDamage = 1;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 		ECannonType Type = ECannonType::FireProjectile;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+		int CountAmmunition = 100;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+		int SpecialNum = 3;
 	FTimerHandle ReloadTimerHandle;
 	bool ReadyToFire = true;
+	bool ReadyToSpecialFire = true;
+	bool specialStart = false;
+	int currentSpecial = 0;
+
 
 public:	
 	// Sets default values for this actor's properties
 	ACannon();
 	void Fire();
+	void FireSpecial();
 	bool IsReadyToFire();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void Reload();
+	void ReloadSpecial();
 
 public:	
 	// Called every frame

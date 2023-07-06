@@ -24,30 +24,69 @@ ACannon::ACannon()
 
 void ACannon::Fire()
 {
+
 	if (!ReadyToFire)
 	{
 		return;
 	}
 	ReadyToFire = false;
-	if (Type == ECannonType::FireProjectile)
+	if (Type == ECannonType::FireProjectile && CountAmmunition > 0)
 	{
-		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, "Fire - projectile");
+		GEngine->AddOnScreenDebugMessage(11, 1, FColor::Green, "Fire - projectile");
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, "Fire - trace");
+		GEngine->AddOnScreenDebugMessage(11, 1, FColor::Green, "Fire - trace");
 	}
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this,
 		&ACannon::Reload, 1 / FireRate, false);
 }
+
+void ACannon::FireSpecial()
+{
+	if (!ReadyToSpecialFire)
+	{
+		return;
+	}
+	ReadyToSpecialFire = false;
+	if (Type == ECannonType::FireProjectile)
+	{
+		GEngine->AddOnScreenDebugMessage(10, 2, FColor::Green, "FireSpecial - projectile");
+		specialStart = true;
+		while (currentSpecial < SpecialNum)
+		{
+			if (specialStart)
+			{
+				GEngine->AddOnScreenDebugMessage(currentSpecial, 2, FColor::Green, "asd");
+				specialStart = false;
+				GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this,
+					&ACannon::ReloadSpecial, 1 / FireRate, false);
+			}
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(10, 2, FColor::Green, "FireSpecial - trace");
+	}
+	ReadyToSpecialFire = true;
+
+}
+
 bool ACannon::IsReadyToFire()
 {
 	return ReadyToFire;
 }
+
 void ACannon::Reload()
 {
 	ReadyToFire = true;
 }
+void ACannon::ReloadSpecial()
+{
+	currentSpecial++;
+	specialStart = false;
+}
+
 void ACannon::BeginPlay()
 {
 	Super::BeginPlay();

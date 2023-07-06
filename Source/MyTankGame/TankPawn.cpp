@@ -51,18 +51,8 @@ void ATankPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	MoveForwardTankPawn(DeltaTime);
 	MoveRightTankPawn(DeltaTime);
-
-	if (TankController)
-	{
-		FVector mousePos = TankController->GetMousePos();
-		FRotator targetRotation =
-			UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), mousePos);
-		FRotator currRotation = TurretMesh->GetComponentRotation();
-		targetRotation.Pitch = currRotation.Pitch;
-		targetRotation.Roll = currRotation.Roll;
-		TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation,
-			TurretRotationInterpolationKey));
-	}
+	FireTank();
+	
 }
 
 // Called to bind functionality to input
@@ -120,5 +110,26 @@ void ATankPawn::Fire()
 	if (Cannon)
 	{
 		Cannon->Fire();
+	}
+}
+void ATankPawn::FireSpecial()
+{
+	if (Cannon)
+	{
+		Cannon->FireSpecial();
+	}
+}
+void ATankPawn::FireTank()
+{
+	if (TankController)
+	{
+		FVector mousePos = TankController->GetMousePos();
+		FRotator targetRotation =
+			UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), mousePos);
+		FRotator currRotation = TurretMesh->GetComponentRotation();
+		targetRotation.Pitch = currRotation.Pitch;
+		targetRotation.Roll = currRotation.Roll;
+		TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation,
+			TurretRotationInterpolationKey));
 	}
 }

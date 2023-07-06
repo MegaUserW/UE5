@@ -78,9 +78,12 @@ public:
 public:
 	UFUNCTION()
 		void Fire();
+	UFUNCTION()
+		void FireSpecial();
 
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 	void MoveForwardTankPawn(float DeltaTime);
 	void MoveRightTankPawn(float DeltaTime);
+	void FireTank();
 };
