@@ -52,23 +52,14 @@ void ACannon::FireSpecial()
 	if (Type == ECannonType::FireProjectile)
 	{
 		GEngine->AddOnScreenDebugMessage(10, 2, FColor::Green, "FireSpecial - projectile");
-		specialStart = true;
-		while (currentSpecial < SpecialNum)
-		{
-			if (specialStart)
-			{
-				GEngine->AddOnScreenDebugMessage(currentSpecial, 2, FColor::Green, "asd");
-				specialStart = false;
-				GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this,
-					&ACannon::ReloadSpecial, 1 / FireRate, false);
-			}
-		}
+		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this,
+			&ACannon::Reload, 1 / FireRate, false);
+
 	}
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(10, 2, FColor::Green, "FireSpecial - trace");
 	}
-	ReadyToSpecialFire = true;
 
 }
 
@@ -80,11 +71,6 @@ bool ACannon::IsReadyToFire()
 void ACannon::Reload()
 {
 	ReadyToFire = true;
-}
-void ACannon::ReloadSpecial()
-{
-	currentSpecial++;
-	specialStart = false;
 }
 
 void ACannon::BeginPlay()
