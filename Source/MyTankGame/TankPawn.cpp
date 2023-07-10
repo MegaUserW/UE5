@@ -17,7 +17,7 @@ ATankPawn::ATankPawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Body Mesh"));
-	BodyMesh->SetupAttachment(RootComponent);
+	RootComponent = BodyMesh;
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turret Mesh"));
 	TurretMesh->SetupAttachment(BodyMesh);
 
@@ -42,7 +42,7 @@ void ATankPawn::BeginPlay()
 	Super::BeginPlay();
 	TankController = Cast<ATankPlayerController>(GetController());
 
-	SetupCannon();
+	SetupCannon(CannonClass);
 }
 
 // Called every frame
@@ -91,7 +91,7 @@ void ATankPawn::MoveRightTankPawn(float DeltaTime)
 	SetActorRotation(currentRotation);
 }
 
-void ATankPawn::SetupCannon()
+void ATankPawn::SetupCannon(TSubclassOf<ACannon> newCannon)
 {
 	if (Cannon)
 	{
@@ -100,11 +100,12 @@ void ATankPawn::SetupCannon()
 	FActorSpawnParameters params;
 	params.Instigator = this;
 	params.Owner = this;
-	Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, params);
+	Cannon = GetWorld()->SpawnActor<ACannon>(newCannon, params);
 
 	Cannon->AttachToComponent(CannonSetupPoint,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 }
+
 void ATankPawn::Fire()
 {
 	if (Cannon)

@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/ArrowComponent.h"
+//#include "TankPlayerController.h"
 #include "TankPawn.generated.h"
 
 //class UStaticMeshComponent;
@@ -30,7 +31,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	void SetupCannon();
 
 public:	
 	// Called every frame
@@ -86,4 +86,5 @@ public:
 	void MoveForwardTankPawn(float DeltaTime);
 	void MoveRightTankPawn(float DeltaTime);
 	void FireTank();
+	void SetupCannon(TSubclassOf<ACannon> newCannon);
 };
