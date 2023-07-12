@@ -10,6 +10,7 @@
 #include "Components/ArrowComponent.h"
 
 
+
 // Sets default values
 ATankPawn::ATankPawn()
 {
@@ -34,6 +35,12 @@ ATankPawn::ATankPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
+		HealthComponent->OnDie.AddUObject(this, &ATankPawn::Die);
+	HealthComponent->OnDamaged.AddUObject(this, &ATankPawn::DamageTaked);
+	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
+	HitCollider->SetupAttachment(BodyMesh);
 }
 
 // Called when the game starts or when spawned
@@ -133,4 +140,20 @@ void ATankPawn::FireTank()
 		TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation,
 			TurretRotationInterpolationKey));
 	}
+}
+
+void ATankPawn::TakeDamage(FDamageData DamageData)
+{
+	HealthComponent->TakeDamage(DamageData);
+}
+
+void ATankPawn::Die()
+{
+	Destroy();
+}
+
+void ATankPawn::DamageTaked(float DamageValue)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Tank %s taked damage:%f Health:%f"), *GetName(),
+		DamageValue, HealthComponent->GetHealth());
 }

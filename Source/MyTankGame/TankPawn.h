@@ -8,7 +8,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/ArrowComponent.h"
-//#include "TankPlayerController.h"
+#include "DamageTaker.h"
+#include "HealthComponent.h"
+#include "Components/BoxComponent.h"
 #include "TankPawn.generated.h"
 
 //class UStaticMeshComponent;
@@ -73,13 +75,28 @@ public:
 	UPROPERTY()
 		ACannon* Cannon;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UHealthComponent* HealthComponent;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UBoxComponent* HitCollider;
+
+
 	float TargetForwardAxisValue = 0.0f;
 	float TargetRightAxisValue = 0.0f;
+
+protected:
+	UFUNCTION()
+		void Die();
+	UFUNCTION()
+		void DamageTaked(float DamageValue);
+
 public:
 	UFUNCTION()
 		void Fire();
 	UFUNCTION()
 		void FireSpecial();
+	UFUNCTION()
+		void TakeDamage(FDamageData DamageData);
 
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
