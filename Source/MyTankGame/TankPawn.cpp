@@ -59,7 +59,12 @@ void ATankPawn::Tick(float DeltaTime)
 	MoveForwardTankPawn(DeltaTime);
 	MoveRightTankPawn(DeltaTime);
 	FireTank();
-	
+
+	if (TankController)
+	{
+		FVector mousePos = TankController->GetMousePos();
+		RotateTurretTo(mousePos);
+	}
 }
 
 // Called to bind functionality to input
@@ -157,3 +162,22 @@ void ATankPawn::DamageTaked(float DamageValue)
 	UE_LOG(LogTemp, Warning, TEXT("Tank %s taked damage:%f Health:%f"), *GetName(),
 		DamageValue, HealthComponent->GetHealth());
 }
+FVector ATankPawn::GetTurretForwardVector()
+{
+	return TurretMesh->GetForwardVector();
+}
+void ATankPawn::RotateTurretTo(FVector TargetPosition)
+{
+	FRotator targetRotation =
+		UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetPosition);
+	FRotator currRotation = TurretMesh->GetComponentRotation();
+	targetRotation.Pitch = currRotation.Pitch;
+	targetRotation.Roll = currRotation.Roll;
+	TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation,
+		TurretRotationInterpolationKey));
+}
+FVector ATankPawn::GetEyesPosition()
+{
+	return CannonSetupPoint->GetComponentLocation();
+}
+
