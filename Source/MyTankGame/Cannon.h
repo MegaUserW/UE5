@@ -6,8 +6,9 @@
 #include "GameStructs.h"
 #include "GameFramework/Actor.h"
 #include "Components/ArrowComponent.h"
+#include "Projectile.h"
+#include "Engine/EngineTypes.h"
 #include "Cannon.generated.h"
-
 UCLASS()
 class MYTANKGAME_API ACannon : public AActor
 {
@@ -29,11 +30,13 @@ protected:
 		int CountAmmunition = 100;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 		int SpecialNum = 3;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+		TSubclassOf<AProjectile> ProjectileClass;
+
 	FTimerHandle ReloadTimerHandle;
 	bool ReadyToFire = true;
 	bool ReadyToSpecialFire = true;
-	bool specialStart = false;
-	int currentSpecial = 0;
 
 
 public:	
@@ -46,7 +49,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void Reload();
-	void ReloadSpecial();
 
 public:	
 	// Called every frame

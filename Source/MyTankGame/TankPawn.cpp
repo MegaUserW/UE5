@@ -10,6 +10,7 @@
 #include "Components/ArrowComponent.h"
 
 
+
 // Sets default values
 ATankPawn::ATankPawn()
 {
@@ -17,7 +18,7 @@ ATankPawn::ATankPawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Body Mesh"));
-	BodyMesh->SetupAttachment(RootComponent);
+	RootComponent = BodyMesh;
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turret Mesh"));
 	TurretMesh->SetupAttachment(BodyMesh);
 
@@ -34,6 +35,12 @@ ATankPawn::ATankPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
+		HealthComponent->OnDie.AddUObject(this, &ATankPawn::Die);
+	HealthComponent->OnDamaged.AddUObject(this, &ATankPawn::DamageTaked);
+	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
+	HitCollider->SetupAttachment(BodyMesh);
 }
 
 // Called when the game starts or when spawned
@@ -42,7 +49,7 @@ void ATankPawn::BeginPlay()
 	Super::BeginPlay();
 	TankController = Cast<ATankPlayerController>(GetController());
 
-	SetupCannon();
+	SetupCannon(CannonClass);
 }
 
 // Called every frame
@@ -52,7 +59,12 @@ void ATankPawn::Tick(float DeltaTime)
 	MoveForwardTankPawn(DeltaTime);
 	MoveRightTankPawn(DeltaTime);
 	FireTank();
-	
+
+	if (TankController)
+	{
+		FVector mousePos = TankController->GetMousePos();
+		RotateTurretTo(mousePos);
+	}
 }
 
 // Called to bind functionality to input
@@ -91,7 +103,7 @@ void ATankPawn::MoveRightTankPawn(float DeltaTime)
 	SetActorRotation(currentRotation);
 }
 
-void ATankPawn::SetupCannon()
+void ATankPawn::SetupCannon(TSubclassOf<ACannon> newCannon)
 {
 	if (Cannon)
 	{
@@ -100,11 +112,12 @@ void ATankPawn::SetupCannon()
 	FActorSpawnParameters params;
 	params.Instigator = this;
 	params.Owner = this;
-	Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, params);
+	Cannon = GetWorld()->SpawnActor<ACannon>(newCannon, params);
 
 	Cannon->AttachToComponent(CannonSetupPoint,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 }
+
 void ATankPawn::Fire()
 {
 	if (Cannon)
@@ -133,3 +146,38 @@ void ATankPawn::FireTank()
 			TurretRotationInterpolationKey));
 	}
 }
+
+void ATankPawn::TakeDamage(FDamageData DamageData)
+{
+	HealthComponent->TakeDamage(DamageData);
+}
+
+void ATankPawn::Die()
+{
+	Destroy();
+}
+
+void ATankPawn::DamageTaked(float DamageValue)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Tank %s taked damage:%f Health:%f"), *GetName(),
+		DamageValue, HealthComponent->GetHealth());
+}
+FVector ATankPawn::GetTurretForwardVector()
+{
+	return TurretMesh->GetForwardVector();
+}
+void ATankPawn::RotateTurretTo(FVector TargetPosition)
+{
+	FRotator targetRotation =
+		UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetPosition);
+	FRotator currRotation = TurretMesh->GetComponentRotation();
+	targetRotation.Pitch = currRotation.Pitch;
+	targetRotation.Roll = currRotation.Roll;
+	TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation,
+		TurretRotationInterpolationKey));
+}
+FVector ATankPawn::GetEyesPosition()
+{
+	return CannonSetupPoint->GetComponentLocation();
+}
+

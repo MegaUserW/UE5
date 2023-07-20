@@ -3,7 +3,6 @@
 
 #include "TankPlayerController.h"
 #include "DrawDebugHelpers.h"
-#include "TankPawn.h"
 
 
 ATankPlayerController::ATankPlayerController()
