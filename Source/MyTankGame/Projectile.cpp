@@ -3,6 +3,7 @@
 
 #include "DamageTaker.h"
 #include "Projectile.h"
+#include "Components/PrimitiveComponent.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -45,7 +46,7 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const
 	FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Projectile %s collided with %s. "), *GetName(),
+	/*UE_LOG(LogTemp, Warning, TEXT("Projectile %s collided with %s. "), *GetName(),
 		*OtherActor->GetName());
 	AActor* owner = GetOwner();
 	AActor* ownerByOwner = owner != nullptr ? owner->GetOwner() : nullptr;
@@ -63,6 +64,37 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 		else
 		{
 			OtherActor->Destroy();
+		}
+		Destroy();
+	}*/
+
+	AActor* owner = GetOwner();
+	AActor* ownerByOwner = owner != nullptr ? owner->GetOwner() : nullptr;
+	if (OtherActor != owner && OtherActor != ownerByOwner)
+	{
+		IDamageTaker* damageTakerActor = Cast<IDamageTaker>(OtherActor);
+		if (damageTakerActor)
+		{
+			FDamageData damageData;
+			damageData.DamageValue = Damage;
+			damageData.Instigator = owner;
+			damageData.DamageMaker = this;
+			damageTakerActor->TakeDamage(damageData);
+		}
+		else
+		{
+			UPrimitiveComponent* mesh =
+				Cast<UPrimitiveComponent>(OtherActor->GetRootComponent());
+			if (mesh)
+			{
+				if (mesh->IsSimulatingPhysics())
+				{
+					FVector forceVector =
+						OtherActor->GetActorLocation() - GetActorLocation();
+					forceVector.Normalize();
+					mesh->AddImpulse(forceVector, NAME_None, true);
+				}
+			}
 		}
 		Destroy();
 	}

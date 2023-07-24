@@ -24,7 +24,7 @@ public:
 	// Sets default values for this actor's properties
 	AProjectile();
 
-	void Start();
+	virtual void Start();
 
 protected:
 	// Called when the game starts or when spawned
@@ -35,7 +35,7 @@ protected:
 			OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool
 			bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-		void Move();
+		virtual void Move();
 
 
 public:	
