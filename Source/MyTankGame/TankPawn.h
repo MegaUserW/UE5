@@ -8,6 +8,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/ArrowComponent.h"
+#include "DamageTaker.h"
+#include "HealthComponent.h"
+#include "Components/BoxComponent.h"
 #include "TankPawn.generated.h"
 
 //class UStaticMeshComponent;
@@ -18,7 +21,7 @@ class ATankPlayerController;
 
 
 UCLASS()
-class MYTANKGAME_API ATankPawn : public APawn
+class MYTANKGAME_API ATankPawn : public APawn, public IDamageTaker
 {
 	GENERATED_BODY()
 
@@ -30,7 +33,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	void SetupCannon();
 
 public:	
 	// Called every frame
@@ -73,17 +75,50 @@ public:
 	UPROPERTY()
 		ACannon* Cannon;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UHealthComponent* HealthComponent;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UBoxComponent* HitCollider;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Patrol points" , Meta = (MakeEditWidget = true))
+		TArray<FVector> PatrollingPoints;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params | Accurency")
+		float MovementAccurency = 50;
+
+
 	float TargetForwardAxisValue = 0.0f;
 	float TargetRightAxisValue = 0.0f;
+
+
+protected:
+	UFUNCTION()
+		void Die();
+	UFUNCTION()
+		void DamageTaked(float DamageValue);
+
 public:
 	UFUNCTION()
 		void Fire();
 	UFUNCTION()
 		void FireSpecial();
+	UFUNCTION()
+		void TakeDamage(FDamageData DamageData);
+	UFUNCTION()
+		TArray<FVector> GetPatrollingPoints() { return PatrollingPoints; };
+	UFUNCTION()
+		float GetMovementAccurency() { return MovementAccurency; };
+	UFUNCTION()
+		FVector GetTurretForwardVector();
+	UFUNCTION()
+		void RotateTurretTo(FVector TargetPosition);
 
+
+
+	FVector GetEyesPosition();
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 	void MoveForwardTankPawn(float DeltaTime);
 	void MoveRightTankPawn(float DeltaTime);
 	void FireTank();
+	void SetupCannon(TSubclassOf<ACannon> newCannon);
 };
